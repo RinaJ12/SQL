@@ -28,3 +28,17 @@ END
 select num,abs(dense_rank() over(partition by num order by id)-id) as rank_diff from logs) as tbl
 group by tbl.num,tbl.rank_diff
 having count(*)>=3
+
+                                                                                        
+                                                                                         /* Write your T-SQL query statement below
+601. Human Traffic of Stadium
+ */
+select id,visit_date,people from(
+select id,visit_date,people,count(*) over (partition by row_num) as cnt from
+(
+select *,abs(id-row_number() over(order by id)) as row_num
+from stadium
+where people>=100)
+tbl
+)tbl2
+where cnt >=3
