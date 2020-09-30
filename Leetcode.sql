@@ -52,5 +52,14 @@ lag (student,1) over(order by id)
 end as exchanged_seat
 from seat )tbl
 
-/*Runtime: 638 ms, faster than 83.99% of MS SQL Server online submissions for Exchange Seats.*/
-
+/* Write your T-SQL query statement below 
+185. Department Top Three Salaries
+*/
+select d.name as Department,e.name as Employee,Salary from (
+select
+name,salary,DepartmentId ,
+dense_rank() over(partition by DepartmentId order by salary desc) as dr
+from Employee) e
+join Department d
+on e.DepartmentId=d.Id
+where dr<=3
