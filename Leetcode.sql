@@ -24,3 +24,7 @@ BEGIN
         
     );
 END
+/* 180. Consecutive Numbers */                                                                                      select distinct tbl.num as ConsecutiveNums from(
+select num,abs(dense_rank() over(partition by num order by id)-id) as rank_diff from logs) as tbl
+group by tbl.num,tbl.rank_diff
+having count(*)>=3
