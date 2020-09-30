@@ -42,3 +42,15 @@ where people>=100)
 tbl
 )tbl2
 where cnt >=3
+ 
+ /*626. Exchange Seats*/
+select id,coalesce(exchanged_seat,student) as student from(
+select 
+id,student,
+case when id%2=1 then lead(student,1) over(order by id) else 
+lag (student,1) over(order by id)
+end as exchanged_seat
+from seat )tbl
+
+/*Runtime: 638 ms, faster than 83.99% of MS SQL Server online submissions for Exchange Seats.*/
+
