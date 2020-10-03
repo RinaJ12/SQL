@@ -56,3 +56,31 @@ group by s_day,hacker_id
 select temp4.s_day,temp4.s_day_count,temp4.hacker_id,h.name from temp4 join hackers
 on temp4.hacker_id=hackers.hacker_id
 where final_rank=1
+
+
+Interviews
+with tot_sub as(
+    select challenge_id,sum(total_submissions) sums_total_submissions,sum(total_accepted_submissions) sums_total_accepted_submissions from Submission_Stats group by challenge_id
+    having sum(total_submissions)+sum(total_accepted_submissions)>0
+),
+tot_views as(
+     select challenge_id,sum(total_views) sum_total_views,sum(total_unique_views) sumtotal_unique_views from View_Stats group by challenge_id
+ having sum(total_views)+sum(total_unique_views)>0
+)
+select h.contest_id, h.hacker_id, h.name, sum(ts.sums_total_submissions), sum(ts.sums_total_accepted_submissions), sum(tv.sum_total_views),sum(tv.sumtotal_unique_views)
+from Contests h join Colleges cl on cl.contest_id=h.contest_id 
+join challenges c on c.college_id=cl.college_id
+left join tot_sub ts on c.challenge_id=ts.challenge_id
+left join tot_views tv on c.challenge_id=tv.challenge_id
+group by h.contest_id, h.hacker_id, h.name
+order by h.contest_id
+ 
+
+SQL Project Planning
+
+with temp as(
+select task_id,start_date,end_date,row_number() over(order by start_date)-day(start_date) as diff
+from
+Projects)
+select min(start_date),max(end_date)from temp group by diff
+order by (max(day(end_date))-min(day(start_date))),min(start_date)
