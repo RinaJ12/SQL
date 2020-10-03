@@ -111,3 +111,98 @@ on f1.x=f2.y and f1.y=f2.x
 select x,y from temp2
 where (x=y and cnt>1) or (x!=y)
  order by x 
+ 
+ Leet Code -  Get the Second Most Recent Activity
+  with temp as 
+ (select *,row_number() over (partition by username order by startDate desc) rn
+ from UserActivity)
+ , temp2 as
+ (
+ select username from UserActivity group by username having count(*)=1
+ )
+ ,temp3(
+  select ua.* from UserActivity ua join temp2 on ua.username=t2.username union select * from temp  where rn=2)
+  
+ 
+ Report-Contiguous-Dates
+  
+ with temp_success(
+select success_date,day(success_date)-dense_rank over (order by success_date) as diff
+where success_date between '2019-01-01' to '2019-12-31'),
+
+with temp_fail(
+select fail_date,day(fail_date)-dense_rank over (order by fail_date) as diff
+where fail_date between '2019-01-01' to '2019-12-31'),
+
+select "succeeded" as period_state,min(success_date) as start_date ,max(success_date) as end_date from temp_success
+group by diff 
+union
+select "failed" as period_state,min(fail_date) as start_date ,max(fail_date) as end_date from temp_success
+group by diff
+order by start_date
+
+
+Market Analysis II
+
+with orders_temp as (
+select tbl.seller_id from (
+select seller_id,row_number() over (partition by seller_id order by order_date) as rn from orders
+) tbl
+where rn=2
+)
+,items_users as (
+select u.user_id,i.item_id from users u join items i on u.favorite_brand=i.item_brand
+)
+select ot.user_id ,
+case when ot.favorite_brand =sold_brand then yes
+else no end as 2nd_item_fav_brand
+from items_users iu left join orders_temp ot on iu.user_id=ot.seller_id  
+
+
+Find-Cumulative-Salary-of-an-Employee
+with temp1 as (
+select * from(
+select * ,row_number() over (partition by id order by month desc)as rn from salary
+)where rn>1 or id in (select id from input group by id having count(*)=1)
+)
+,temp2 as (select t1.*,sum(coalesce(t2.salary,0)) as sal2 temp1 t1 left join temp1  t2 on t1.id=t2.id and t1.month>t2.motnth
+group by t1.* )
+
+select temp2.id,temp2.month,temp2.salary+temp2.sal2 as salary from temp2
+order by id ,month desc
+
+
+
+Average-Salary:-Departments-VS-Company
+with com_avg as (
+select substr(pay_date,0,7) as pay_month,avg(amount) as c_avg from salary group by substr(pay_date,0,7)
+)
+,dept_emp as (
+select 
+substr(pay_date,0,7) as pay_month,d.department_id,avg(salary) as avg_dept group by (concat(month(pay_date),'-',day(pay_date)),department_id)
+from 
+salary s, join employee e on s.employee_id=e.employee_id
+)
+select pay_month,department_id,
+case when avg_dept > c_avg
+case when avg_dept < c_avg
+else same
+from dept_emp de join com_avg ca
+on de.pay_month=ca.pay_month
+
+
+Students-Report-By-Geography
+select 
+coalesce(America,'')
+coalesce(Europe,'')
+coalesce(Asia,'')
+from
+(
+select row_number() over (partition by continent order by name)rn ,name, continent from student 
+)
+src_tbl
+pivot(
+min(name) for continent in (America,Europe,Asia) 
+)
+pv_tbl
+order by rn
