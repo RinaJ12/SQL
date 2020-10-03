@@ -10,32 +10,8 @@ where  t.request_at BETWEEN '2013-10-01' AND '2013-10-03'  group by t.request_at
  (select request_at,COUNT(id) as b1 from trips join users on users.users_id=trips.client_id where users.banned='No' and request_at BETWEEN '2013-10-01' AND '2013-10-03' group by request_at) b
  on a.request_at=b.request_at
 
-<<<<<<< HEAD
  
  /* Write your T-SQL query statement below
-=======
-                                                                                        
-/* 177 Nth Highest Salary */
-                                                                                        
-CREATE FUNCTION getNthHighestSalary(@N INT) RETURNS INT AS
-BEGIN
-    RETURN (
-    
-        select distinct salary from(
-        select salary,dense_rank() over(order by salary desc) as getNthHighestSalary from Employee)tbl where  getNthHighestSalary=@N
-     
-        /* Write your T-SQL query statement below. */
-        
-    );
-END
-/* 180. Consecutive Numbers */                                                                                      select distinct tbl.num as ConsecutiveNums from(
-select num,abs(dense_rank() over(partition by num order by id)-id) as rank_diff from logs) as tbl
-group by tbl.num,tbl.rank_diff
-having count(*)>=3
-
-                                                                                        
-                                                                                         /* Write your T-SQL query statement below
->>>>>>> 61e65059b705b91736966ce74172ae60a9b797fe
 601. Human Traffic of Stadium
  */
 select id,visit_date,people from(
@@ -47,16 +23,11 @@ where people>=100)
 tbl
 )tbl2
 where cnt >=3
-<<<<<<< HEAD
 
 
 Runtime: 838 ms, faster than 52.21% of MS SQL Server online submissions for Human Traffic of Stadium.
 
 /*626. Exchange Seats*/
-=======
- 
- /*626. Exchange Seats*/
->>>>>>> 61e65059b705b91736966ce74172ae60a9b797fe
 select id,coalesce(exchanged_seat,student) as student from(
 select 
 id,student,
@@ -65,7 +36,6 @@ lag (student,1) over(order by id)
 end as exchanged_seat
 from seat )tbl
 
-<<<<<<< HEAD
 /*Runtime: 638 ms, faster than 83.99% of MS SQL Server online submissions for Exchange Seats.*/
 
 Hackerrank
@@ -114,16 +84,30 @@ from
 Projects)
 select min(start_date),max(end_date)from temp group by diff
 order by (max(day(end_date))-min(day(start_date))),min(start_date)
-=======
-/* Write your T-SQL query statement below 
-185. Department Top Three Salaries
-*/
-select d.name as Department,e.name as Employee,Salary from (
-select
-name,salary,DepartmentId ,
-dense_rank() over(partition by DepartmentId order by salary desc) as dr
-from Employee) e
-join Department d
-on e.DepartmentId=d.Id
-where dr<=3
->>>>>>> 61e65059b705b91736966ce74172ae60a9b797fe
+
+
+Placements
+
+with temp as (
+select f.*,p1.salary my_sal,p2.salary as frn_sal
+from Friends f 
+join Packages p1 on f.id=p1.id
+join Packages p2 on f.Friend_ID=p2.id
+where p1.salary<p2.salary)
+select name from Students s join temp p on s.id=p.id
+order by p.frn_sal
+
+
+Symmetric Pairs
+
+
+with temp as(
+select f1.*
+from Functions f1 join Functions f2 
+on f1.x=f2.y and f1.y=f2.x
+)
+,temp2 as ( select *,count(*) as cnt from temp where x<=y
+ group by x,y)
+select x,y from temp2
+where (x=y and cnt>1) or (x!=y)
+ order by x 
