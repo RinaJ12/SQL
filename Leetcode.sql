@@ -206,3 +206,52 @@ min(name) for continent in (America,Europe,Asia)
 )
 pv_tbl
 order by rn
+
+Total-Sales-Amount-by-Year
+with years as 
+(
+select distinct year(period_start) as yr from Sales
+union distinct year(period_end) as yr from Sales
+)
+with sales_temp(
+from sales s
+left join years y
+on period_end=>year and period_start<=year
+)
+select p.product_id,p.product_name,st.yr
+(datediff(day,
+case when year(period_start)=yr then period_start
+else concat(yr,'-01-01') as new_start_dt,
+case when year(period_end)=yr then period_end 
+else concat(yr,'-12-31') as new_end_dt)+1)*total_amount
+from sales_temp st join products p 
+on p.product_id=st.product_id
+
+Find-the-Quiet-Students-in-All-Exams
+
+with exam_high_low as 
+(
+select *,min(score) over (partition by exam_id) as min_score,max(score) over (partition by exam_id) as max_score
+)
+select student.* from exam_high_low
+join student on student.student_id=exam_high_low.student_id
+where student_id not in (select student_id from exam_high_low where score in (max_score,min_score))
+
+
+Game-Play-Analysis-III
+
+select a1.player_id,a1.event_date,sum(a2.games_played_so_far)
+from Activity a1 
+join Activity a2 on 
+a1.player_id=c2.player_id and 
+a1.event_date>=a2.event_date
+group by player_id,event_date
+
+
+Game-Play-Analysis-IV
+
+select player_id,
+round(sum((case when dateadd(day,event_date,1) = lead(event_date,1) over (partition by player_id,order by event_date) 1 else 0)/(select count(distinct player_id))),2)
+from Activity
+
+
