@@ -255,3 +255,56 @@ round(sum((case when dateadd(day,event_date,1) = lead(event_date,1) over (partit
 from Activity
 
 
+Managers with at Least 5 Direct Reports
+select Name from Employee where id in (
+select managerId from employee  group by managerId
+having coun(*)>4) tbl
+
+
+Winning-Candidate
+select Name from Candidate where candidate_id = (
+select candidate_id from vote group by candidate_id
+order by count(*) desc limit 1
+)
+
+
+LeetCode: Friend Requests II: Who Has the Most Friends
+with req_temp as (
+select requester_id as user_id ,count(*) as frnd from request_accepted  group by requester_id
+union all
+select accepter_id as user_id ,count(*) as frnd from request_accepted  group by accepter_id 
+)
+select user_id ,sum(frnd) from req_temp group by user_id
+order by sum(frnd) limit 1
+
+
+LeetCode: Tree Node
+select distinct id ,
+case when p_id is null then 'Root'
+when p_id is not null and t2.p_id is not null then 'Inner'
+when p_id is not null and t2.p_id is null then 'Leaf'
+from tree t1 left join tree t2
+on t1.id=t2.p_id
+
+
+Shortest-Distance-in-a-Plane
+select 
+min(
+round(sqrt((p1.x-p2.x)*(p1.x-p2.x)+(p1.y-p2.y)*(p1.y-p2.y)),2))
+from point_2d p1 join point_2d p2 
+p1.x!=p2.x or p1.y!=p2.y
+
+Second-Degree-Follower
+select f1.follower,count(f2.follower)
+from follow f1
+join follow f2
+on f1.follower=f2.follow
+where f2.follower is not null
+group by f1.follower
+
+Customers-Who-Bought-All-Products
+select customer_id
+From customer
+where product_key in (select product_key from product) 
+group by customer_id
+having count(*)=2
