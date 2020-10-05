@@ -308,3 +308,49 @@ From customer
 where product_key in (select product_key from product) 
 group by customer_id
 having count(*)=2
+
+Product-Sales-Analysis-III
+with temp as (select product_id,year as first_year,quantity,price ,row_number() as rank over (partition by product_id order by year) 
+from sales)
+select product_id,year as first_year,quantity,price from temp where rank=1
+
+Unpopular Books 
+select book_id,name from books where book_id not in (select book_id from orders group by book_id having sum(quantity)<10) and 
+available_from<'2019-05-23'
+
+
+Date Window of 7 days
+
+with temp as (
+select '2019-01-01' date1
+union
+select '2019-01-02' date1
+union
+select '2019-01-03' date1
+union
+select '2019-01-04' date1
+union
+select '2019-01-05' date1
+union
+select '2019-01-06'  date1
+union
+select '2019-01-07' date1
+union
+select '2019-01-08' date1
+union
+select '2019-01-09' date1
+union
+select '2019-01-10' date1
+)
+,temp2 as(
+select t2.date1 t2_date,t1.date1 t1_date,count(t1.date1) over (partition by t2.date1) as diff from temp t1 join temp t2 on
+t1.date1<=t2.date1 and datediff(day,t1.date1,t2.date1) between 0 and 6)
+select * from temp2  where diff=7
+
+
+With temp1 as (
+select  distinct id , date1,
+case when datediff(day,date1,Lead(date1,1) over (partition by id order by date1))=1 OR 
+datediff(day,Lag(date1,1) over (partition by id order by date1),date1)=1 then 1 end as new_col from Logins)
+select id from temp1
+group by id having sum(new_col)>4
