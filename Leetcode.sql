@@ -365,3 +365,12 @@ case when datediff(day,date1,Lead(date1,1) over (partition by id order by date1)
 datediff(day,Lag(date1,1) over (partition by id order by date1),date1)=1 then 1 end as new_col from Logins)
 select id from temp1
 group by id having sum(new_col)>4
+
+//LeetCode SQL #603: Consecutive Available Seats                   
+with temp as(
+select seat_id,
+seat_id-dense_rank(order by seat_id) as id_diff
+where free=1)
+select seat_id from(
+select count(*) as cnt over (partition by id_diff) from temp)
+where cnt>1
