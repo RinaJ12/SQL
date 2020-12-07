@@ -9,6 +9,17 @@ where  t.request_at BETWEEN '2013-10-01' AND '2013-10-03'  group by t.request_at
  join 
  (select request_at,COUNT(id) as b1 from trips join users on users.users_id=trips.client_id where users.banned='No' and request_at BETWEEN '2013-10-01' AND '2013-10-03' group by request_at) b
  on a.request_at=b.request_at
+                                                                                        
+                                                                                        
+ with temp as(
+select t.*
+from trips t join users u
+    on Client_Id=Users_Id and lower(u.Banned)='no' and 
+    t.Request_at between '2013-10-01' and '2013-10-03'
+)
+select  request_at as 'Day',round(cast(sum(case when Status like '%cancelled%' then 1 else 0 end) as float)/cast(count(*) as float),2) as 'Cancellation Rate'
+ from temp group by request_at
+
 
  
  /* Write your T-SQL query statement below
