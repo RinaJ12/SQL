@@ -374,3 +374,19 @@ where free=1)
 select seat_id from(
 select count(*) as cnt over (partition by id_diff) from temp)
 where cnt>1
+
+                   
+#weather-type-in-each-country
+                  
+with temp(
+select 
+case when avg(weather_state)>25 then 'Hot' else
+when avg(weather_state)<15 then 'Cold' else
+'Warm' end as weather_type
+from Weather
+where month(day)=11
+group by country_id)
+select country_name ,weather_type
+from Countries c join temp w on c.country_id=w.country_id           
+                   
+                   
