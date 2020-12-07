@@ -389,4 +389,14 @@ group by country_id)
 select country_name ,weather_type
 from Countries c join temp w on c.country_id=w.country_id           
                    
-                   
+#unpopular-books                   
+with books_temp as (
+select book_id,name from Books where available_from<DATEADD(year,-2,'2019-06-23')
+)
+with orders_temp as (
+select book_id
+where dispatch_date<=2019-06-23 and dispatch_date>=DATEADD(month,-2,'2019-06-23')
+group by book_id
+having sum(*)<10
+)
+select books_temp.* from books_temp join orders_temp on orders_temp.book_id=books_temp.book_id
